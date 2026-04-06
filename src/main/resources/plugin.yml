@@ -1,0 +1,8 @@
+name: PostgreSQLJDBC
+version: ${version}
+main: tv.fussel.postgresqljdbc.SpigotPostgreSqlJdbcPlugin
+api-version: 1.21
+description: Bundled PostgreSQL JDBC driver for Spigot servers only.
+authors: [fusseltv]
+load: STARTUP
+loadbefore: [GrimAC]
