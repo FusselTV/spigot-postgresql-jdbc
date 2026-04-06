@@ -1,0 +1,47 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_number:
+        description: Release number (example: 1.0.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-shadow-jar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build shadow JAR
+        run: ./gradlew --no-daemon clean shadowJar -PreleaseVersion=${{ github.event.inputs.release_number }}
+
+      - name: Upload shadow JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadow-jar-${{ github.event.inputs.release_number }}
+          path: build/libs/*.jar
+          if-no-files-found: error
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.release_number }}
+          name: Release v${{ github.event.inputs.release_number }}
+          generate_release_notes: true
+          files: build/libs/*.jar
